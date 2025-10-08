@@ -5,6 +5,7 @@ WORKDIR /app
 
 # jarファイルをコンテナにコピー
 COPY dtc-api-back-boot-0.0.1-SNAPSHOT.jar app.jar
+COPY application.properties .
 
 # ポートを開放
 EXPOSE 8081

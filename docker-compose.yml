@@ -67,6 +67,8 @@ services:
       context: ./issuebank
       dockerfile: Dockerfile
     container_name: issuebank
+    ports:
+      - "8085:8080"
     networks:
       - dtc-network
   citybank:
@@ -76,6 +78,8 @@ services:
     container_name: citybank
     depends_on:
       - issuebank
+    ports:
+      - "8086:8080"
     networks:
       - dtc-network
   user:
@@ -85,6 +89,8 @@ services:
     container_name: user
     depends_on:
       - citybank
+    ports:
+      - "8087:8080"
     networks:
       - dtc-network
 
