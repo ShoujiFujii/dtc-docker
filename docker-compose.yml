@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+
+  api-front-db:
+    image: postgres:16
+    container_name: api-front-db
+    environment:
+      POSTGRES_DB: dtc
+      POSTGRES_USER: dtc
+      POSTGRES_PASSWORD: dtcpocdev
+    volumes:
+      - api-front-pgdata:/var/lib/postgresql/data # データ永続化
+      - ./api_front/postgres/init-scripts:/docker-entrypoint-initdb.d/ # 初回起動時の初期化スクリプト
+    networks:
+      - dtc-network
+
+  api-front-app:
+    build:
+      context: ./api_front
+      dockerfile: Dockerfile
+    container_name: api-front-app
+    depends_on:
+      - api-front-db
+    environment:
+      SPRING_PROFILES_ACTIVE: dev1
+      SPRING_DATASOURCE_URL: jdbc:postgresql://api-front-db:5432/dtc
+      SPRING_DATASOURCE_USERNAME: dtc
+      SPRING_DATASOURCE_PASSWORD: dtcpocdev
+    ports:
+      - "8081:8081"
+    networks:
+      - dtc-network
+
+  api-back-db:
+    image: postgres:16
+    container_name: api-back-db
+    environment:
+      POSTGRES_DB: dtc
+      POSTGRES_USER: dtc
+      POSTGRES_PASSWORD: dtcpocdev
+    volumes:
+      - api-back-pgdata:/var/lib/postgresql/data # データ永続化
+      - ./api_back/postgres/init-scripts:/docker-entrypoint-initdb.d/ # 初回起動時の初期化スクリプト
+    networks:
+      - dtc-network
+
+  api-back-app:
+    build:
+      context: ./api_back
+      dockerfile: Dockerfile
+    container_name: api-back-app
+    depends_on:
+      - api-back-db
+    environment:
+      SPRING_PROFILES_ACTIVE: dev1
+      SPRING_DATASOURCE_URL: jdbc:postgresql://api-back-db:5432/dtc
+      SPRING_DATASOURCE_USERNAME: dtc
+      SPRING_DATASOURCE_PASSWORD: dtcpocdev
+    ports:
+      - "8082:8081"
+    networks:
+      - dtc-network
+
+  issuebank:
+    build:
+      context: ./issuebank
+      dockerfile: Dockerfile
+    container_name: issuebank
+    networks:
+      - dtc-network
+  citybank:
+    build:
+      context: ./citybank
+      dockerfile: Dockerfile
+    container_name: citybank
+    depends_on:
+      - issuebank
+    networks:
+      - dtc-network
+  user:
+    build:
+      context: ./user
+      dockerfile: Dockerfile
+    container_name: user
+    depends_on:
+      - citybank
+    networks:
+      - dtc-network
+
+networks:
+  dtc-network:
+
+
+volumes:
+  api-back-pgdata:
+  api-front-pgdata:
